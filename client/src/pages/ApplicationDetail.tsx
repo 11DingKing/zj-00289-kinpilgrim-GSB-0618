@@ -119,7 +119,10 @@ export default function ApplicationDetail() {
     if (!id) return;
     const res = await matchingApi.recommendVolunteers(id);
     if (res.success) {
-      setRecommendedVolunteers(res.data);
+      const sorted = [...res.data].sort(
+        (a, b) => b.match_score - a.match_score,
+      );
+      setRecommendedVolunteers(sorted);
     }
   };
 
@@ -714,6 +717,11 @@ export default function ApplicationDetail() {
                       >
                         <EnvironmentOutlined /> {v.province} {v.city}{" "}
                         {v.district}
+                      </div>
+                      <div
+                        style={{ fontSize: 12, color: "#666", marginTop: 2 }}
+                      >
+                        当前在办：{v.active_assignments} 件
                       </div>
                       {v.skills && (
                         <div

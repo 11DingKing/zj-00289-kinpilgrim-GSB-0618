@@ -133,11 +133,13 @@ function calculateMatchScore(
 }
 
 function calculateVolunteerMatchScore(
+  db: ReturnType<typeof getDb>,
   app: any,
   volunteer: any,
 ): {
   score: number;
   reasons: MatchReason[];
+  active_assignments: number;
 } {
   const reasons: MatchReason[] = [];
   let totalScore = 0;
@@ -190,7 +192,11 @@ function calculateVolunteerMatchScore(
     reasons.push({ field: "capacity", score: 5, reason: "工作量适中" });
   }
 
-  return { score: Math.min(totalScore, 100), reasons };
+  return {
+    score: Math.min(totalScore, 100),
+    reasons,
+    active_assignments: assignments.count,
+  };
 }
 
 router.get("/application/:id/related", (req: Request, res: Response) => {
@@ -264,7 +270,7 @@ router.get("/application/:id/related", (req: Request, res: Response) => {
 router.get(
   "/application/:id/recommend-volunteers",
   (req: Request, res: Response) => {
-  const db = getDb();
+    const db = getDb();
     const { id } = req.params;
 
     const application = db
@@ -281,11 +287,13 @@ router.get(
 
     const scored = volunteers
       .map((v) => {
-        const { score, reasons } = calculateVolunteerMatchScore(application, v);
+        const { score, reasons, active_assignments } =
+          calculateVolunteerMatchScore(db, application, v);
         return {
           ...v,
           match_score: score,
           match_reasons: reasons,
+          active_assignments,
         };
       })
       .sort((a, b) => b.match_score - a.match_score);
