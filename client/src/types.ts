@@ -149,6 +149,7 @@ export interface MatchReason {
 export interface VolunteerMatchScore extends Volunteer {
   match_score: number;
   match_reasons: MatchReason[];
+  active_assignments: number;
 }
 
 export interface RelatedApplication extends Application {
