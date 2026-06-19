@@ -119,7 +119,10 @@ export default function ApplicationDetail() {
     if (!id) return;
     const res = await matchingApi.recommendVolunteers(id);
     if (res.success) {
-      setRecommendedVolunteers(res.data);
+      const sorted = [...res.data].sort(
+        (a, b) => b.match_score - a.match_score,
+      );
+      setRecommendedVolunteers(sorted);
     }
   };
 
@@ -722,6 +725,12 @@ export default function ApplicationDetail() {
                           专长：{v.skills}
                         </div>
                       )}
+                      <div
+                        style={{ fontSize: 12, color: "#888", marginTop: 2 }}
+                      >
+                        <ClockCircleOutlined /> 在办量：{v.active_assignments}{" "}
+                        单
+                      </div>
                       {v.match_reasons && v.match_reasons.length > 0 && (
                         <div style={{ marginTop: 6 }}>
                           {v.match_reasons.map((r, i) => (
